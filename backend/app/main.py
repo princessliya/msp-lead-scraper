@@ -18,6 +18,13 @@ FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "di
 logger = logging.getLogger(__name__)
 
 
+def _parse_cors_origins(raw: str) -> list[str]:
+    raw = raw.strip()
+    if raw == "*":
+        return ["*"]
+    return [o.strip() for o in raw.split(",") if o.strip()]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Warn if using the default JWT secret
@@ -46,7 +53,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
+        allow_origins=_parse_cors_origins(settings.cors_origins),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
