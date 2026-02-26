@@ -34,3 +34,21 @@ class ScrapeJobListResponse(BaseModel):
     total: int
     page: int
     per_page: int
+
+
+class VerticalRecommendation(BaseModel):
+    name: str
+    icon: str
+    sector: str
+    msp_fit: int
+    reason: str
+    local_count: int      # businesses found in that sector for the location
+    local_score: float    # combined score: msp_fit + density bonus
+    density_label: str    # "Very High" / "High" / "Medium" / "Low" / "N/A"
+
+
+class RecommendationsResponse(BaseModel):
+    location: str
+    recommendations: list[VerticalRecommendation]
+    has_api_key: bool
+    message: Optional[str] = None
