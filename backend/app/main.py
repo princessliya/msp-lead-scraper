@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from app.config import settings
 from app.database import create_tables
@@ -68,9 +68,16 @@ def create_app() -> FastAPI:
     app.include_router(cache.router, prefix="/api/cache", tags=["cache"])
     app.include_router(events.router, prefix="/api/events", tags=["events"])
 
-    # Serve frontend static files in production
+    # Serve frontend static files in production.
+    # Using a catch-all GET route instead of app.mount("/", StaticFiles(...))
+    # to avoid routing conflicts where the mount intercepts API POST requests.
     if FRONTEND_DIST.exists():
-        app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
+        @app.get("/{full_path:path}", include_in_schema=False)
+        async def serve_spa(full_path: str) -> FileResponse:
+            file = FRONTEND_DIST / full_path
+            if file.is_file():
+                return FileResponse(str(file))
+            return FileResponse(str(FRONTEND_DIST / "index.html"))
 
     return app
 

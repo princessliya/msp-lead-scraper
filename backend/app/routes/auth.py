@@ -23,7 +23,7 @@ from app.services.auth_service import (
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 def register(request: RegisterRequest, db: Annotated[Session, Depends(get_db)]):
     existing = db.query(User).filter(User.email == request.email).first()
     if existing:
@@ -37,7 +37,12 @@ def register(request: RegisterRequest, db: Annotated[Session, Depends(get_db)]):
     db.add(user)
     db.commit()
     db.refresh(user)
-    return user
+
+    # Return tokens immediately so the user is logged in after registration
+    return TokenResponse(
+        access_token=create_access_token(user.id),
+        refresh_token=create_refresh_token(user.id),
+    )
 
 
 @router.post("/login", response_model=TokenResponse)
