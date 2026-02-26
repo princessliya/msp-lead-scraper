@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////app/data/msp_leads.db
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - SERPER_KEY=${SERPER_KEY:-}
+      - SERPAPI_KEY=${SERPAPI_KEY:-}
+      - HUNTER_KEY=${HUNTER_KEY:-}
+      - APOLLO_KEY=${APOLLO_KEY:-}
+    volumes:
+      - app-data:/app/data
+    working_dir: /app/backend
+    restart: unless-stopped
+
+volumes:
+  app-data:
