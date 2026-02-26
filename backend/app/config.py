@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 _BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +29,14 @@ class Settings(BaseSettings):
     # CORS — accepts a comma-separated string or "*"
     # Kept as str so pydantic-settings doesn't try to JSON-parse it
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
+
+    @model_validator(mode="after")
+    def fix_database_url(self) -> "Settings":
+        # Railway injects DATABASE_URL as postgres://... but SQLAlchemy 2.x
+        # requires postgresql://... — rewrite it transparently on startup.
+        if self.database_url.startswith("postgres://"):
+            self.database_url = self.database_url.replace("postgres://", "postgresql://", 1)
+        return self
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
