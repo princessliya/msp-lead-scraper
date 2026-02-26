@@ -7,11 +7,11 @@ import type { RecommendationsResponse, VerticalRecommendation, VerticalsResponse
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-function scoreColor(score: number): 'green' | 'blue' | 'yellow' | 'gray' {
-  if (score >= 85) return 'green'
-  if (score >= 75) return 'blue'
-  if (score >= 65) return 'yellow'
-  return 'gray'
+function scoreClass(score: number): string {
+  if (score >= 85) return 'bg-green-100 text-green-700'
+  if (score >= 75) return 'bg-blue-100 text-blue-700'
+  if (score >= 65) return 'bg-yellow-100 text-yellow-700'
+  return 'bg-gray-100 text-gray-600'
 }
 
 function densityBadgeClass(label: string): string {
@@ -67,7 +67,7 @@ function RecommendationCard({
       {/* MSP Fit */}
       <div className="text-center shrink-0">
         <div className="text-xs text-gray-400 mb-1">MSP Fit</div>
-        <Badge color={scoreColor(rec.msp_fit)}>{rec.msp_fit}</Badge>
+        <Badge className={scoreClass(rec.msp_fit)}>{rec.msp_fit}</Badge>
       </div>
 
       {/* Local density — only shown when we have real API data */}
@@ -135,7 +135,7 @@ export default function VerticalsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spinner size="lg" />
+        <Spinner className="h-8 w-8" />
       </div>
     )
   }
@@ -179,7 +179,7 @@ export default function VerticalsPage() {
           >
             {searchLoading ? (
               <>
-                <Spinner size="sm" />
+                <Spinner className="h-4 w-4 border-white border-t-transparent" />
                 Analyzing…
               </>
             ) : (
@@ -289,7 +289,7 @@ export default function VerticalsPage() {
                               {v.icon} {v.name}
                             </td>
                             <td className="px-5 py-3">
-                              <Badge color={scoreColor(v.msp_fit)}>{v.msp_fit}</Badge>
+                              <Badge className={scoreClass(v.msp_fit)}>{v.msp_fit}</Badge>
                             </td>
                             <td className="px-5 py-3 text-gray-500">{v.reason}</td>
                           </tr>
